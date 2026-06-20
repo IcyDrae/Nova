@@ -19,6 +19,20 @@ namespace Nova
         public MainWindow()
         {
             InitializeComponent();
+
+            Loaded += (_, _) =>
+            {
+                SearchBox.Focus();
+            };
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                // TODO: change this to hide the window instead of closing it
+                Application.Current.Shutdown();
+            }
         }
     }
 }
