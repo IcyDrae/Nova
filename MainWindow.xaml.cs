@@ -4,9 +4,6 @@ using System.Windows.Forms;
 
 namespace Nova
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private NotifyIcon? _notifyIcon;
@@ -14,12 +11,20 @@ namespace Nova
         public MainWindow()
         {
             InitializeComponent();
+            InitializeSearchBox();
+            InitializeNotifyIcon();
+        }
 
+        private void InitializeSearchBox()
+        {
             Loaded += (_, _) =>
             {
                 SearchBox.Focus();
             };
+        }
 
+        private void InitializeNotifyIcon()
+        {
             _notifyIcon = new NotifyIcon
             {
                 Icon = new Icon("Assets/nova.ico"),
