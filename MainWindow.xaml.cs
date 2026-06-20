@@ -1,13 +1,6 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Forms;
 
 namespace Nova
 {
@@ -16,6 +9,8 @@ namespace Nova
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NotifyIcon? _notifyIcon;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -24,14 +19,46 @@ namespace Nova
             {
                 SearchBox.Focus();
             };
+
+            _notifyIcon = new NotifyIcon
+            {
+                Icon = new Icon("Assets/nova.ico"),
+                Visible = true,
+                Text = "Nova"
+            };
+
+            _notifyIcon.ContextMenuStrip = new ContextMenuStrip();
+
+            _notifyIcon.ContextMenuStrip.Items.Add(
+                "Show Nova",
+                null,
+                (_, _) => ShowNova());
+
+            _notifyIcon.DoubleClick += (_, _) => ShowNova();
+
+            _notifyIcon.ContextMenuStrip.Items.Add(
+                "Exit",
+                null,
+                (_, _) => System.Windows.Application.Current.Shutdown());
         }
 
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void ShowNova()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+        }
+
+        private void HideNova()
+        {
+            Hide();
+        }
+
+        private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
-                // TODO: change this to hide the window instead of closing it
-                Application.Current.Shutdown();
+                HideNova();
             }
         }
     }
