@@ -1,7 +1,9 @@
-﻿using Nova.Services;
+﻿using Nova.Models;
+using Nova.Services;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Forms;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Nova
@@ -45,13 +47,26 @@ namespace Nova
             return IntPtr.Zero;
         }
 
+        private List<ApplicationEntry> Apps = new();
+        private readonly StartMenuScannerService StartMenuScannerService = new();
+        private ObservableCollection<ApplicationEntry> FilteredApps = new();
+
+        private const double BaseHeight = 60;   // search box area
+        private const double ItemHeight = 32;   // each result row
+        private const double MaxVisibleItems = 8;
+
         public MainWindow()
         {
             InitializeComponent();
             InitializeSearchBox();
             InitializeNotifyIcon();
 
-            Loaded += MainWindow_Loaded;
+            Apps = new StartMenuScannerService().Scan();
+            FilteredApps = new ObservableCollection<ApplicationEntry>();
+            ResultsList.ItemsSource = FilteredApps;
+
+            FilteredApps.Clear();
+            ResultsList.SelectedIndex = 0;
         }
 
         private void InitializeSearchBox()
@@ -91,6 +106,14 @@ namespace Nova
             Show();
             WindowState = WindowState.Normal;
             Activate();
+
+            SearchBox.Text = "";
+
+            SearchBox.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                SearchBox.Focus();
+                Keyboard.Focus(SearchBox);
+            }));
         }
 
         private void HideNova()
@@ -104,10 +127,44 @@ namespace Nova
             {
                 HideNova();
             }
+
+            if (FilteredApps.Count == 0)
+                return;
+
+            if (e.Key == Key.Down)
+            {
+                if (ResultsList.SelectedIndex < FilteredApps.Count - 1)
+                    ResultsList.SelectedIndex++;
+                else
+                    ResultsList.SelectedIndex = 0;
+
+                ResultsList.ScrollIntoView(ResultsList.SelectedItem);
+                e.Handled = true;
+            }
+
+            if (e.Key == Key.Up)
+            {
+                if (ResultsList.SelectedIndex > 0)
+                    ResultsList.SelectedIndex--;
+                else
+                    ResultsList.SelectedIndex = FilteredApps.Count - 1;
+
+                ResultsList.ScrollIntoView(ResultsList.SelectedItem);
+                e.Handled = true;
+            }
+
+            if (e.Key == Key.Enter)
+            {
+                LaunchSelectedApp();
+                e.Handled = true;
+                return;
+            }
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnSourceInitialized(EventArgs e)
         {
+            base.OnSourceInitialized(e);
+
             var Helper = new System.Windows.Interop.WindowInteropHelper(this);
 
             RegisterHotKey(
@@ -117,7 +174,6 @@ namespace Nova
                 VK_SPACE);
 
             var Source = System.Windows.Interop.HwndSource.FromHwnd(Helper.Handle);
-
             Source.AddHook(WndProc);
         }
 
@@ -130,6 +186,78 @@ namespace Nova
                 HOTKEY_ID);
 
             base.OnClosed(e);
+        }
+
+        private void FilterApps(string query)
+        {
+            FilteredApps.Clear();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var results = Apps.Where(a =>
+                    a.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+                foreach (var app in results)
+                    FilteredApps.Add(app);
+            }
+
+            ResultsList.SelectedIndex = 0;
+
+            ResultsList.Visibility = FilteredApps.Count == 0
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+
+            UpdateWindowHeight();
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilterApps(SearchBox.Text);
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+
+            Hide();
+        }
+
+        private void UpdateWindowHeight()
+        {
+            int count = FilteredApps.Count;
+
+            if (count == 0)
+            {
+                Height = BaseHeight;
+                return;
+            }
+
+            int visibleItems = Math.Min(count, (int)MaxVisibleItems);
+
+            double newHeight = BaseHeight + (visibleItems * ItemHeight);
+
+            Height = newHeight;
+        }
+
+        private void LaunchSelectedApp()
+        {
+            if (ResultsList.SelectedItem is not ApplicationEntry app)
+                return;
+
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = app.Path,
+                    UseShellExecute = true
+                });
+
+                HideNova();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Failed to launch {app.Name}\n\n{ex.Message}");
+            }
         }
     }
 }
