@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Nova"
         mc:Ignorable="d"
         Title="MainWindow"
-        Height="80"
+        Height="60"
         Width="700"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
@@ -16,15 +16,22 @@
         PreviewKeyDown="Window_PreviewKeyDown" >
     <Grid Background="Transparent">
         <Border
-            Background="#1E1E1E"
+            Background="White"
             CornerRadius="12"
-            Padding="20" >
+            Padding="14"
+			BorderThickness="2" >
+			<Border.BorderBrush>
+				<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#4F8CFF" Offset="0" />
+                    <GradientStop Color="#A855F7" Offset="1" />
+                </LinearGradientBrush>
+			</Border.BorderBrush>
             <TextBox
                 x:Name="SearchBox"
-                FontSize="24"
+                FontSize="18"
                 Background="Transparent"
                 BorderThickness="0"
-                Foreground="White" />
+                Foreground="Black" />
         </Border>
     </Grid>
 </Window>
