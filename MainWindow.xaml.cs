@@ -52,7 +52,7 @@ namespace Nova
         private ObservableCollection<ApplicationEntry> FilteredApps = new();
 
         private const double BaseHeight = 60;   // search box area
-        private const double ItemHeight = 32;   // each result row
+        private const double ItemHeight = 42;   // each result row
         private const double MaxVisibleItems = 8;
 
         public MainWindow()
@@ -61,7 +61,12 @@ namespace Nova
             InitializeSearchBox();
             InitializeNotifyIcon();
 
-            Apps = new StartMenuScannerService().Scan();
+            Apps = new StartMenuScannerService()
+                .Scan()
+                .GroupBy(a => a.Name)
+                .Select(g => g.First())
+                .OrderBy(App => App.Name)
+                .ToList();
             FilteredApps = new ObservableCollection<ApplicationEntry>();
             ResultsList.ItemsSource = FilteredApps;
 
@@ -195,7 +200,8 @@ namespace Nova
             if (!string.IsNullOrWhiteSpace(query))
             {
                 var results = Apps.Where(a =>
-                    a.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+                    a.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(App => App.Name);
 
                 foreach (var app in results)
                     FilteredApps.Add(app);
@@ -212,6 +218,7 @@ namespace Nova
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            UpdatePlaceholder();
             FilterApps(SearchBox.Text);
         }
 
@@ -234,9 +241,13 @@ namespace Nova
 
             int visibleItems = Math.Min(count, (int)MaxVisibleItems);
 
-            double newHeight = BaseHeight + (visibleItems * ItemHeight);
+            double listHeight = visibleItems * ItemHeight;
 
-            Height = newHeight;
+            // 👇 prevents “cramped single item” look
+            if (count == 1)
+                listHeight = ItemHeight + 10;
+
+            Height = BaseHeight + listHeight;
         }
 
         private void LaunchSelectedApp()
@@ -258,6 +269,19 @@ namespace Nova
             {
                 System.Windows.MessageBox.Show($"Failed to launch {app.Name}\n\n{ex.Message}");
             }
+        }
+
+        private void UpdatePlaceholder()
+        {
+            PlaceholderText.Visibility =
+                string.IsNullOrWhiteSpace(SearchBox.Text)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        private void ResultsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            LaunchSelectedApp();
         }
     }
 }
