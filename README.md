@@ -35,7 +35,7 @@ Look here: [Roadmap](https://github.com/IcyDrae/Nova/issues/1)
 
 # How to download
 
-Go here for the latest ClickOnce release: [Releases](https://github.com/IcyDrae/Nova/issues/1).
+Go here for the latest ClickOnce release: [Releases](https://github.com/IcyDrae/Nova/releases).
 
 # Wanna get involved?
 
