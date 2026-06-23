@@ -260,7 +260,10 @@ namespace Nova
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = app.Path,
-                    UseShellExecute = true
+                    UseShellExecute = true,
+                    WorkingDirectory =
+                        Environment.GetFolderPath(
+                            Environment.SpecialFolder.UserProfile)
                 });
 
                 HideNova();
