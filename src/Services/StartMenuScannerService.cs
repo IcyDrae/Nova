@@ -31,7 +31,11 @@ namespace Nova.Services
                 if (!Directory.Exists(ProgramsPath))
                     continue;
 
-                var Files = Directory.GetFiles(ProgramsPath, "*.lnk", SearchOption.AllDirectories);
+                var Files = Directory.GetFiles(
+                    ProgramsPath,
+                    "*.*",
+                    SearchOption.AllDirectories)
+                    .Where(File => File.EndsWith(".lnk") || File.EndsWith(".appref-ms"));
 
                 foreach (var File in Files)
                 {
