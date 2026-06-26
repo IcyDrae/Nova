@@ -5,6 +5,15 @@ namespace Nova.Services
 {
     public class StartMenuScannerService
     {
+        private void AddSystemApps(List<ApplicationEntry> apps)
+        {
+            apps.Add(new ApplicationEntry
+            {
+                Name = "Terminal",
+                Path = "wt"
+            });
+        }
+
         public List<ApplicationEntry> Scan()
         {
             var Results = new List<ApplicationEntry>();
@@ -33,6 +42,8 @@ namespace Nova.Services
                     });
                 }
             }
+
+            AddSystemApps(Results);
 
             return Results;
         }

@@ -9,7 +9,7 @@
 	<UseWindowsForms>true</UseWindowsForms>
 	<PackageIcon>nova.ico</PackageIcon>
 	<RepositoryUrl>https://github.com/IcyDrae/Nova</RepositoryUrl>
-	  <ApplicationIcon>Assets\nova.ico</ApplicationIcon>
+	<ApplicationIcon>Assets\nova.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
