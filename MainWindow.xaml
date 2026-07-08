@@ -16,6 +16,57 @@
         SizeToContent="Manual"
         PreviewKeyDown="Window_PreviewKeyDown">
 
+    <Window.Resources>
+
+        <Style x:Key="MinimalScrollBar" TargetType="ScrollBar">
+            <Setter Property="Width" Value="4"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+
+                            <Track x:Name="PART_Track"
+                               IsDirectionReversed="True">
+
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton
+                                    Command="ScrollBar.PageUpCommand"
+                                    Opacity="0"
+                                    IsHitTestVisible="False"/>
+                                </Track.DecreaseRepeatButton>
+
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border
+                                                Width="4"
+                                                HorizontalAlignment="Center"
+                                                CornerRadius="5"
+                                                Background="#C8C8C8"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton
+                                    Command="ScrollBar.PageDownCommand"
+                                    Opacity="0"
+                                    IsHitTestVisible="False"/>
+                                </Track.IncreaseRepeatButton>
+
+                            </Track>
+
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
     <Grid Background="Transparent">
 
         <Border
@@ -66,7 +117,13 @@
                     FontSize="16"
                     Margin="0,10,0,0"
                     SelectionMode="Single"
-                    MouseDoubleClick="ResultsList_MouseDoubleClick" >
+                    MouseDoubleClick="ResultsList_MouseDoubleClick"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" >
+
+                    <ListBox.Resources>
+                        <Style TargetType="ScrollBar"
+                               BasedOn="{StaticResource MinimalScrollBar}" />
+                    </ListBox.Resources>
 
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
