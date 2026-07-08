@@ -1,6 +1,7 @@
 ﻿using Nova.Models;
 using Nova.Services;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -257,14 +258,27 @@ namespace Nova
 
             try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                if (app.Path.StartsWith("shell:AppsFolder"))
                 {
-                    FileName = app.Path,
-                    UseShellExecute = true,
-                    WorkingDirectory =
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = app.Path,
+                        UseShellExecute = true,
+                        WorkingDirectory = Environment.GetFolderPath(
+                            Environment.SpecialFolder.UserProfile)
+                    });
+                }
+                else
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = app.Path,
+                        UseShellExecute = true,
+                        WorkingDirectory =
                         Environment.GetFolderPath(
                             Environment.SpecialFolder.UserProfile)
-                });
+                    });
+                }
 
                 HideNova();
             }
